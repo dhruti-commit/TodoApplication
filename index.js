@@ -103,6 +103,53 @@ app.post('/addTodo', async(req, res)=>
    
 })
 
+//API to update exisiting todo
+
+app.put("/updateTodo", async(req, res) =>
+{
+    var label = req.body.label;
+    var fileData = await readFileData("todos.json");
+
+    if(fileData != undefined){
+        if(fileData != "" || fileData != [])
+        {
+            var todoList = JSON.parse(fileData);
+            if(Array.isArray(todoList))
+            {
+                var getTodo = todoList.findIndex((todo) => todo.label === label)
+                if(getTodo != -1)
+                {
+                    todoList.splice(getTodo);
+                    var updatedTodo = {
+                   "label" : req.body.label,
+                   "description" : req.body.description,
+                   "type" : req.body.type
+                    }
+                   todoList.push(updatedTodo);
+                   writeDataToFile("todos.json", todoList);
+                   res.send("Update todo successfully");
+                }
+                else
+                {
+                    res.send("No such todo found");
+                }
+                
+            }
+            else
+            {
+                res.send("Todo array is not available");
+            }
+        }
+        else
+        {
+            res.send("empty file data");
+        }
+    }
+    else{
+        res.send("file data is undefined");
+    }
+})
+
 //API to delete todo after completion
 app.delete("/deleteTodo", async(req, res) =>
     {

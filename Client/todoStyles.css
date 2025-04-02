@@ -1,0 +1,62 @@
+.form-container {
+    width: 300px;
+    padding: 20px;
+    border: 1px solid #ccc;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 10px;
+}
+
+.stackpanel {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    color: cadetblue;
+    background-color: rgb(15, 110, 91);
+}
+
+.tododiv {
+    width: 300px;
+    height: auto;
+    margin: 2px;
+    padding: 10px;
+    margin-top: 30px;
+}
+
+.userdiv {
+    width: 300px;
+    margin: 2px;
+    margin-top: 50px;
+}
+
+.item {
+    flex: 1;
+    padding: 20px;
+    background-color: lightblue;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.lable {
+    width: 7pc;
+    margin-right: 10px;
+}
+
+.image-button {
+    padding: 2px 2px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    margin-left: 230px;
+    display: inline-flex;
+    border: 2px solid #ccc;
+    background-color: #f0f0f0;
+}
+
+.image-button img {
+    width: 30px;
+    height: 30px;
+    margin-right: 8px;
+}

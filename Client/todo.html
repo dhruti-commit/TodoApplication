@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TodoApp</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="todoStyles.css">
+
+<script>
+function EditTodo(){
+   function parsedResponse(data){
+    console.log(data);
+   }
+
+   function editDataCalback(response){
+        response.json().then(parsedResponse)
+   }
+
+    fetch("http://localhost:3000/todos", {
+        method : "GET"
+    }).then(editDataCalback)
+}
+</script>
+</head>
+
+<body>
+    <div class="stackpanel">
+        <div class="item">
+            <div class="userdiv">
+                <fieldset>
+                    <legend>User Details</legend>
+                    <div class="form-group">
+                        <label class="lable">UserName :</label>
+                        <input type="text">
+                    </div>
+                    <div class="form-group">
+                        <label class="lable">Email :</label>
+                        <input type="email">
+                    </div>
+                    <div class="form-group">
+                        <label class="lable">Mobile No. :</label>
+                        <input type="tel">
+                    </div>
+                    <div class="form-group">
+                        <label class="lable">About :</label>
+                        <textarea></textarea>
+                    </div>
+                </fieldset>
+            </div>
+
+            <div class="tododiv">
+                <fieldset>
+                    <legend>Todo Details</legend>
+                    <button class="image-button" onclick="EditTodo()"><img src="image/edit.png" alt="Edit"></button>
+                    <div class="form-group">
+                        <label class="lable">Title :</label>
+                        <input type="text">
+                    </div>
+                    <div class="form-group">
+                        <label class="lable">Description :</label>
+                        <input type="text">
+                    </div>
+                    <div class="form-group">
+                        <label class="lable">Date :</label>
+                        <input type="date">
+                    </div>
+                    <div>
+                        <label class="lable">Progress :</label>
+                        <div class="form-group">
+                            <input type="checkbox" id="not-started">
+                            <label for="not-started">Not Started</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" id="in-progress">
+                            <label for="in-progress">InProgress</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" id="done">
+                            <label for="done">Done</label>
+                        </div>
+                    </div>
+                </fieldset>
+            </div>
+
+            <button style="margin-top: 8px;">Log Out</button>
+        </div>
+
+        <div class="item">
+            <label>TODO</label>
+            <hr style="width: 70px;">
+        </div>
+        <div class="item">
+            <label>TODO-IN-PROGRESS</label>
+            <hr style="width: 160px;">
+        </div>
+        <div class="item">
+            <label>DONE</label>
+            <hr style="width: 70px;">
+        </div>
+    </div>
+</body>
+</html>

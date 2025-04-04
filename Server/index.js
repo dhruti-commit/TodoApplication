@@ -78,7 +78,7 @@ app.post('/addTodo', async(req, res)=>
             availableTodo = FindTodo(label1, todoList);
             if(availableTodo != undefined)
             {
-                res.send("Todo with same title already exists");
+                res.send({message :"Todo with same title already exists"});
             }
             else{
                 const { title, description, Progress } = req.body; // Extract values

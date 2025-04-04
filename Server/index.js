@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors')
 require('dotenv').config();
 const port =  parseInt(process.env.PORT);
 const fs = require('fs').promises;
@@ -7,7 +8,7 @@ const app = express();
 const nodemon = require('nodemon');
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true })); 
-
+app.use(cors());
 
 // function to get todo with lable if present
 function FindTodo(lable,  todos)
@@ -16,7 +17,7 @@ function FindTodo(lable,  todos)
     console.log(todos.length);
     if(Array.isArray(todos)){
     for(var i=0; i < todos.length; i++){
-        if(todos[i].label == lable)
+        if(todos[i].title == lable)
         {
             return todos[i];
         }
@@ -60,8 +61,8 @@ app.get('/todos', async(req,res) =>
 // API to add todos into the list
 app.post('/addTodo', async(req, res)=>
     {
-    //console.log(req.body);
-    var label1 = req.body.label;
+    console.log(req.body);
+    var label1 = req.body.title;
     var availableTodo;
     var fileData = await readFileData("todos.json");
     if(fileData != undefined)
@@ -77,28 +78,30 @@ app.post('/addTodo', async(req, res)=>
             availableTodo = FindTodo(label1, todoList);
             if(availableTodo != undefined)
             {
-                res.send("Todo with same label already exists");
+                res.send("Todo with same title already exists");
             }
             else{
-                var newTodo = 
-                {
-                   "label" : req.body.label,
-                   "description" : req.body.description,
-                   "type" : req.body.type
+                const { title, description, Progress } = req.body; // Extract values
+
+                if (!title || !description || !Progress) {
+                    return res.status(400).json({ error: "Missing required fields" });
                 }
-                todoList.push(newTodo)
+            
+                // Simulate saving data (Replace this with your DB logic)
+                const newTodo = { title, description, Progress };
+                todoList.push(newTodo);
                 await writeDataToFile("todos.json", todoList);
-                res.send("Todo added successfully.")
+                res.send({message :"Todo added successfully."})
             }
         }
         else
         {
-            res.send("file data is undefined");
+            res.send({message : "file data is undefined"});
         }
     } 
     else
     {
-        res.send("array is not found");
+        res.send({message :"array is not found"});
     }
    
 })
@@ -107,7 +110,7 @@ app.post('/addTodo', async(req, res)=>
 
 app.put("/updateTodo", async(req, res) =>
 {
-    var label = req.body.label;
+    var title = req.body.title;
     var fileData = await readFileData("todos.json");
 
     if(fileData != undefined){
@@ -116,44 +119,47 @@ app.put("/updateTodo", async(req, res) =>
             var todoList = JSON.parse(fileData);
             if(Array.isArray(todoList))
             {
-                var getTodo = todoList.findIndex((todo) => todo.label === label)
+                var getTodo = todoList.findIndex((todo) => todo.title === title)
                 if(getTodo != -1)
                 {
-                    todoList.splice(getTodo);
-                    var updatedTodo = {
-                   "label" : req.body.label,
-                   "description" : req.body.description,
-                   "type" : req.body.type
+                    todoList.splice(getTodo, 1);
+                    const { title, description, Progress } = req.body; // Extract values
+
+                    if (!title || !description || !Progress) {
+                        return res.status(400).json({ error: "Missing required fields" });
                     }
-                   todoList.push(updatedTodo);
+                
+                    // Simulate saving data (Replace this with your DB logic)
+                    const updatedTodo = { title, description, Progress };
+                    todoList.push(updatedTodo);
                    writeDataToFile("todos.json", todoList);
-                   res.send("Update todo successfully");
+                   res.send({message :"Update todo successfully"});
                 }
                 else
                 {
-                    res.send("No such todo found");
+                    res.send({message :"No such todo found"});
                 }
                 
             }
             else
             {
-                res.send("Todo array is not available");
+                res.send({message :"Todo array is not available"});
             }
         }
         else
         {
-            res.send("empty file data");
+            res.send({message :"empty file data"});
         }
     }
     else{
-        res.send("file data is undefined");
+        res.send({message :"file data is undefined"});
     }
 })
 
 //API to delete todo after completion
 app.delete("/deleteTodo", async(req, res) =>
     {
-        var label = req.body.label;
+        var title = req.body.title;
         var fileData =  await readFileData("todos.json");
         if(fileData != undefined)
         {
@@ -164,21 +170,21 @@ app.delete("/deleteTodo", async(req, res) =>
              var todoList = JSON.parse(fileData);
              if(Array.isArray(todoList))
              {
-                var getTodo = todoList.findIndex((todo) => todo.label === label);
+                var getTodo = todoList.findIndex((todo) => todo.title === title);
                 if(getTodo != -1)
                 {
                     todoList.splice(getTodo);
                     await writeDataToFile("todos.json", todoList);
-                    res.send("Todo deleted successfully");
+                    res.send({message :"Todo deleted successfully"});
                 }
                 else
                 {
-                    res.send("No such todod available to delete");
+                    res.send({message :"No such todod available to delete"});
                 }
             }
             else
             {
-               res.send("No array found");
+               res.send({message :"No array found"});
             }
 
         }

@@ -32,7 +32,7 @@ function domManipulation(parent, data){
     var parentElement = document.getElementById(parent);
     
     var childElement = document.createElement("div");
-    childElement.setAttribute("id", data.title);
+    childElement.setAttribute("id", data.id);
     childElement.style.border = "1px solid black";
     childElement.style.padding = "5px";
     childElement.style.margin = "5px";
@@ -51,18 +51,32 @@ function domManipulation(parent, data){
 
      var grandChildren5 = document.createElement("span");
      grandChildren5.innerHTML = data.description;
+
+     var grandChildren6 = document.createElement("br");
+
+    var grandChildren7 = document.createElement("span");
+    grandChildren7.innerHTML = "Date : ";
+
+     var grandChildren8 = document.createElement("span");
+     grandChildren8.innerHTML = data.createdDate;
+
  
      childElement.appendChild(grandChildren1);
      childElement.appendChild(grandChildren2);
      childElement.appendChild(grandChildren3);
      childElement.appendChild(grandChildren4);
      childElement.appendChild(grandChildren5);
+     childElement.appendChild(grandChildren6);
+     childElement.appendChild(grandChildren7);
+     childElement.appendChild(grandChildren8);
 
      parentElement.appendChild(childElement);
 
-     document.getElementById(data.title).addEventListener("click", function(){
+     document.getElementById(data.id).addEventListener("click", function(){
         document.getElementById("title").value = data.title;
         document.getElementById("description").value = data.description;
+        document.getElementById("date").value = data.createdDate;
+        document.getElementById("todoId").value = data.id;
 
         let progressDiv = document.getElementById("Progress-section");
         let checkboxes = progressDiv.querySelectorAll(".progress-checkbox");
@@ -89,10 +103,20 @@ function getValues(){
     // Get the value from the textbox
     const taskTitle = document.getElementById("title").value;
     const taskDescription = document.getElementById("description").value;
+    const taskCreationDate = document.getElementById("date").value;
+    const taskID = document.getElementById("todoId").value;
 
-    if (taskTitle && taskDescription) {
+    if (taskTitle && taskDescription && taskCreationDate) {
         todoData.title = taskTitle;
         todoData.description = taskDescription;
+        todoData.createdDate = taskCreationDate;
+    }
+
+    if (taskID) todoData.id = taskID;
+
+    if (!todoData.id) {
+        todoData.id = Date.now().toString(); // Ensures unique id
+        todoData.createdDate = new Date().toLocaleString();
     }
 
     const progressCheckbox = document.querySelector(".progress-checkbox:checked");
@@ -116,7 +140,9 @@ function addTodo() {
         },
         body : JSON.stringify(todoData)
     }).then(response => response.json())
-    .then(() => getTodoList())
+    .then((data) => {
+        alert(data.message);
+        getTodoList();})
     .catch(error => console.error("Error", error));
     
 
@@ -127,12 +153,15 @@ function deleteTodo(){
 
     const deleteTodo = getValues();
     fetch("http://localhost:3000/deleteTodo", {
-        method : "DELETE", headers :{
-            "content-type" : "application/json"
-        },
-        body : JSON.stringify(deleteTodo)
+        method : "DELETE", 
+        headers :{
+            "content-type" : "application/json",
+            "id" : deleteTodo.id
+        }
     }).then(response => response.json())
-    .then(() => getTodoList())
+    .then((data) => {
+        alert(data.message);
+        getTodoList();})
 }
 
 // Edit data into file if exist
@@ -147,7 +176,10 @@ function EditTodo(){
         },
         body : JSON.stringify(updatedTodoData)
     }).then(response => response.json())
-    .then(() => getTodoList())
+    .then((data) =>{
+        alert(data.message);
+        getTodoList();
+    } )
 }
 
 // function to clear DOM 
@@ -172,6 +204,7 @@ function getTodoList(){
     clearTodoList();
 
     function parsedResponse(getData){
+        if(getData.message != 'Empty File'){
     getData.forEach(data => {
         console.log(data.Progress);
         if(data.Progress === "NotStarted"){
@@ -188,6 +221,7 @@ function getTodoList(){
         }
     })
    }
+}
 
    function editDataCalback(response){
         response.json().then(parsedResponse)

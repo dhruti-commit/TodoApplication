@@ -5,6 +5,7 @@ const port =  parseInt(process.env.PORT);
 const fs = require('fs').promises;
 const bodyparser = require('body-parser');
 const app = express();
+const path = require('path');
 const nodemon = require('nodemon');
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true })); 
@@ -54,7 +55,10 @@ async function writeDataToFile(filePath, content)
 app.get('/todos', async(req,res) => 
     {
          var todoList = await readFileData("todos.json");
+         if(todoList != ""){
          res.send(JSON.parse(todoList));
+         }
+         else res.send({message : "Empty File"});
     })
 
 
@@ -62,33 +66,35 @@ app.get('/todos', async(req,res) =>
 app.post('/addTodo', async(req, res)=>
     {
     console.log(req.body);
-    var label1 = req.body.title;
-    var availableTodo;
+    var newTaskId = req.body.id;
     var fileData = await readFileData("todos.json");
     if(fileData != undefined)
     {
         //handle the edge case if data is empty array or empty string
-        if(fileData == "" || fileData == [])
+        if(fileData == "")
         {
             await writeDataToFile("todos.json", []);
+            fileData = await readFileData("todos.json");
         }
         var todoList = JSON.parse(fileData);
         if(Array.isArray(todoList))
         {
-            availableTodo = FindTodo(label1, todoList);
-            if(availableTodo != undefined)
+            var IsTask = todoList.findIndex((task) => task.id === newTaskId);
+           
+            if(IsTask != -1)
             {
-                res.send("Todo with same title already exists");
+                res.send({message : "Id already present"});
             }
             else{
-                const { title, description, Progress } = req.body; // Extract values
+                const { title, description, Progress ,createdDate, id} = req.body; // Extract values
 
-                if (!title || !description || !Progress) {
-                    return res.status(400).json({ error: "Missing required fields" });
+                if (!title || !description || !Progress || !createdDate) {
+                    return res.status(400).json({ message: "Missing required fields" });
                 }
             
                 // Simulate saving data (Replace this with your DB logic)
-                const newTodo = { title, description, Progress };
+                const newTodo = { title, description, Progress, createdDate, id};
+                newTodo.id = new Date().toISOString().replace(/[:.-]/g, "");
                 todoList.push(newTodo);
                 await writeDataToFile("todos.json", todoList);
                 res.send({message :"Todo added successfully."})
@@ -110,7 +116,7 @@ app.post('/addTodo', async(req, res)=>
 
 app.put("/updateTodo", async(req, res) =>
 {
-    var title = req.body.title;
+    var idToupdate = req.body.id;
     var fileData = await readFileData("todos.json");
 
     if(fileData != undefined){
@@ -119,18 +125,18 @@ app.put("/updateTodo", async(req, res) =>
             var todoList = JSON.parse(fileData);
             if(Array.isArray(todoList))
             {
-                var getTodo = todoList.findIndex((todo) => todo.title === title)
+                var getTodo = todoList.findIndex((todo) => todo.id === idToupdate)
                 if(getTodo != -1)
                 {
                     todoList.splice(getTodo, 1);
-                    const { title, description, Progress } = req.body; // Extract values
+                    const { title, description, Progress , createdDate} = req.body; // Extract values
 
                     if (!title || !description || !Progress) {
                         return res.status(400).json({ error: "Missing required fields" });
                     }
                 
                     // Simulate saving data (Replace this with your DB logic)
-                    const updatedTodo = { title, description, Progress };
+                    const updatedTodo = { title, description, Progress, createdDate};
                     todoList.push(updatedTodo);
                    writeDataToFile("todos.json", todoList);
                    res.send({message :"Update todo successfully"});
@@ -159,21 +165,21 @@ app.put("/updateTodo", async(req, res) =>
 //API to delete todo after completion
 app.delete("/deleteTodo", async(req, res) =>
     {
-        var title = req.body.title;
+        var idToDeleteTodo = req.headers.id;
         var fileData =  await readFileData("todos.json");
         if(fileData != undefined)
         {
             if(fileData == "" || fileData == [])
             {
-                await fs.writeFile("todos.json", JSON.stringify([]));
+                writeDataToFile("todos.json", "[]").then(fileData = readFileData("todos.json"));
             }
              var todoList = JSON.parse(fileData);
              if(Array.isArray(todoList))
              {
-                var getTodo = todoList.findIndex((todo) => todo.title === title);
+                var getTodo = todoList.findIndex((todo) => todo.id === idToDeleteTodo);
                 if(getTodo != -1)
                 {
-                    todoList.splice(getTodo);
+                    todoList.splice(getTodo, 1);
                     await writeDataToFile("todos.json", todoList);
                     res.send({message :"Todo deleted successfully"});
                 }

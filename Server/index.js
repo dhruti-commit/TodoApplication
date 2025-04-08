@@ -83,11 +83,16 @@ app.post('/addTodo', async(req, res)=>
            
             if(IsTask != -1)
             {
+<<<<<<< HEAD
 
                 res.send({message : "Id already present"});
 
                 res.send({message :"Todo with same title already exists"});
 
+=======
+                res.send({message : "Id already present"});
+                res.send({message :"Todo with same title already exists"});
+>>>>>>> e8cfb7c829074bf7d64c7a760b31710914bf1a72
             }
             else{
                 const { title, description, Progress ,createdDate, id} = req.body; // Extract values

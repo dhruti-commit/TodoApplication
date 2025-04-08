@@ -83,11 +83,11 @@ app.post('/addTodo', async(req, res)=>
            
             if(IsTask != -1)
             {
-<<<<<<< HEAD
+
                 res.send({message : "Id already present"});
-=======
+
                 res.send({message :"Todo with same title already exists"});
->>>>>>> b52969ddba52a7b974f75d42d96ec00d870c5467
+
             }
             else{
                 const { title, description, Progress ,createdDate, id} = req.body; // Extract values
@@ -98,7 +98,6 @@ app.post('/addTodo', async(req, res)=>
             
                 // Simulate saving data (Replace this with your DB logic)
                 const newTodo = { title, description, Progress, createdDate, id};
-                newTodo.id = new Date().toISOString().replace(/[:.-]/g, "");
                 todoList.push(newTodo);
                 await writeDataToFile("todos.json", todoList);
                 res.send({message :"Todo added successfully."})

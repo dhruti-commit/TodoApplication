@@ -1,6 +1,7 @@
 
 // if one checkbox is selected then ither will be disabled to edit firstly unchecked to check one the proceed
 document.addEventListener("DOMContentLoaded", function () {
+    clearFormInputs();
     const checkboxes = document.querySelectorAll(".progress-checkbox");
 
     checkboxes.forEach((checkbox) => {
@@ -26,56 +27,41 @@ document.addEventListener("DOMContentLoaded", function () {
         getTodoList();
     });
 
+    //function to clear Form inputs after refresh
+    function clearFormInputs() {
+        document.getElementById("title").value = "";
+        document.getElementById("description").value = "";
+        document.getElementById("date").value = "";
+        document.getElementById("todoId").value = "";
+    
+        // Uncheck all progress checkboxes
+        const checkboxes = document.querySelectorAll(".progress-checkbox");
+        checkboxes.forEach(cb => {
+            cb.checked = false;
+            cb.disabled = false; // Also re-enable them if disabled
+        });
+    }
+
+    
+
 //function to get all todos inside DOM
-function domManipulation(parent, data){
-    console.log(parent, data);
-    var parentElement = document.getElementById(parent);
+function createTodoElement(data){
+    //var parentElement = document.getElementById(parent);
     
     var childElement = document.createElement("div");
     childElement.setAttribute("id", data.id);
-    childElement.style.border = "1px solid black";
-    childElement.style.padding = "5px";
-    childElement.style.margin = "5px";
-
-    var grandChildren1 = document.createElement("span");
-    grandChildren1.innerHTML = "Title : ";
-
-    var grandChildren2 = document.createElement("span");
-    grandChildren2.innerHTML = data.title;
-    
-
-    var grandChildren3 = document.createElement("br");
-
-    var grandChildren4 = document.createElement("span");
-    grandChildren4.innerHTML = "Description : ";
-
-     var grandChildren5 = document.createElement("span");
-     grandChildren5.innerHTML = data.description;
-
-     var grandChildren6 = document.createElement("br");
-
-    var grandChildren7 = document.createElement("span");
-    grandChildren7.innerHTML = "Date : ";
-
-     var grandChildren8 = document.createElement("span");
-     grandChildren8.innerHTML = data.createdDate;
-
- 
-     childElement.appendChild(grandChildren1);
-     childElement.appendChild(grandChildren2);
-     childElement.appendChild(grandChildren3);
-     childElement.appendChild(grandChildren4);
-     childElement.appendChild(grandChildren5);
-     childElement.appendChild(grandChildren6);
-     childElement.appendChild(grandChildren7);
-     childElement.appendChild(grandChildren8);
-
-     parentElement.appendChild(childElement);
-
-     document.getElementById(data.id).addEventListener("click", function(){
+    childElement.style.cssText = "border: 1px solid black; padding: 5px; margin: 5px;";
+    console.log(document.getElementById(data.id));
+    childElement.innerHTML = `
+    <span>Title : </span><span> ${data.title} </span><br>
+    <span>Description : </span><span> ${data.description}</span><br>
+    <span>Date : </span><span> ${data.createdDate} </span>
+    `
+console.log("control reaches here", document.getElementById(data.id));
+     childElement.addEventListener("click", function(){
         document.getElementById("title").value = data.title;
         document.getElementById("description").value = data.description;
-        document.getElementById("date").value = data.createdDate;
+        document.getElementById("date").value = data.createdDate.split("T")[0];;
         document.getElementById("todoId").value = data.id;
 
         let progressDiv = document.getElementById("Progress-section");
@@ -84,15 +70,11 @@ function domManipulation(parent, data){
         checkboxes.forEach(checkbox =>{
             let label = progressDiv.querySelector(`label[for="${checkbox.id}"]`);
 
-            if(label && label.textContent.trim() === data.Progress){
-                checkbox.checked = true;
-            }else 
-            {
-                checkbox.checked = false;
-            }
-            console.log(label);
+            checkbox.checked = label?.textContent.trim() === data.Progress;
         })
      })
+
+    return childElement;
        
 }
 
@@ -116,7 +98,7 @@ function getValues(){
 
     if (!todoData.id) {
         todoData.id = Date.now().toString(); // Ensures unique id
-        todoData.createdDate = new Date().toLocaleString();
+        todoData.createdDate = new Date().toISOString().split("T")[0];
     }
 
     const progressCheckbox = document.querySelector(".progress-checkbox:checked");
@@ -200,27 +182,30 @@ function clearTodoList() {
 
 // Get file data into DOM
 function getTodoList(){
-
+    clearFormInputs();
     clearTodoList();
 
     function parsedResponse(getData){
-        if(getData.message != 'Empty File'){
-    getData.forEach(data => {
-        console.log(data.Progress);
-        if(data.Progress === "NotStarted"){
-            console.log("data added successfully");
-            domManipulation("pending", data);
-        }
-        else if(data.Progress === "InProgress"){
-            domManipulation("inProgress", data);
-            console.log("data added successfully");
-        }
-        else if(data.Progress === "Done"){
-            domManipulation("completed", data);
-            console.log("data added successfully");
-        }
-    })
-   }
+        if(getData.message == 'Empty File') return;
+    
+        clearTodoList();
+
+        const fragments = {
+            NotStarted : document.createDocumentFragment(),
+            InProgress : document.createDocumentFragment(),
+            Done : document.createDocumentFragment()
+        };
+
+    
+    getData.forEach((todo) => {
+       const element = createTodoElement(todo);
+       fragments[todo.Progress]?.appendChild(element);
+    });
+
+    document.getElementById("pending").appendChild(fragments.NotStarted);
+    document.getElementById("inProgress").appendChild(fragments.InProgress);
+    document.getElementById("completed").appendChild(fragments.Done);
+   
 }
 
    function editDataCalback(response){

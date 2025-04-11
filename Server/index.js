@@ -131,14 +131,14 @@ app.put("/updateTodo", async(req, res) =>
                 if(getTodo != -1)
                 {
                     todoList.splice(getTodo, 1);
-                    const { title, description, Progress , createdDate} = req.body; // Extract values
+                    const { title, description, Progress , createdDate, id} = req.body; // Extract values
 
                     if (!title || !description || !Progress) {
                         return res.status(400).json({ error: "Missing required fields" });
                     }
                 
                     // Simulate saving data (Replace this with your DB logic)
-                    const updatedTodo = { title, description, Progress, createdDate};
+                    const updatedTodo = { title, description, Progress, createdDate, id};
                     todoList.push(updatedTodo);
                    writeDataToFile("todos.json", todoList);
                    res.send({message :"Update todo successfully"});

@@ -1,0 +1,162 @@
+*{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    /* background-image: url('image/AuthBackground.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center; */
+    background-color: red;
+}
+
+.overlay {
+    background-color: rgba(255, 255, 255, 0.8); /* semi-transparent white */
+    width: 100%;
+    height: 100vh;
+}
+
+body,html{
+    height: 100%;
+}
+
+.container{
+    display:flex;
+    height: 100vh;
+    border: #009f86;
+    /* border-radius: 2%;
+    background-color: red; */
+    /* background-image: url('image/AuthBackground.jpg');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center; */
+} 
+
+.nav-bar {
+    display: flex;
+    justify-content: space-between; /* spreads content to left & right */
+    align-items: center;            /* vertically center items */
+    padding: 10px 20px;
+    background-color: #becdef;
+    position: fixed;                /* stick to top if needed */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 2px 5px rgba(11, 126, 146, 0.1);
+  }
+  
+  .nav-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+  }
+  
+  .nav-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .nav-button {
+    padding: 10px 20px;
+    border: none;
+    background-color: #89aaf2;
+    color: white;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .nav-button:hover {
+    background-color: #3559a7;
+  }
+
+  
+.left-panel{
+    flex: 1;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    background-image: url('image/AuthBackground.jpg');
+    background-repeat: no-repeat;
+    background-size: contain;       /* Scale it to cover the whole area */
+    background-position: center; 
+}
+
+@media (min-width: 768px) and (-webkit-min-device-pixel-ratio: 2),
+       (min-width: 768px) and (min-resolution: 192dpi) {
+  .left-panel {
+    background-image: url('image/AuthBackground@2x.jpg');
+  }
+}
+
+.right-panel{
+    flex: 1;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    /* background-image: url('image/AuthBackground.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;      
+    background-position: center;  */
+}
+
+.login-box{  
+     width: 100%;
+    max-width: 550px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-box h2{
+    margin-bottom: 20px;
+}
+
+.login-box input{
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 25px;
+    outline: none;
+    max-width: 440px;
+}
+
+.login-box a{
+    display: block;
+    font-size: 12px;
+    margin: 5px 0 15px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+
+.login-box button{
+    width: 60%;
+    padding: 12px;
+    margin: 0  auto ;
+    background: #89aaf2;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.login-box button:hover{
+    background: #3559a7;
+}
+
+.auth-form {
+    display: none;
+  }
+  
+  .auth-form.active {
+    display: block;
+  }
+  

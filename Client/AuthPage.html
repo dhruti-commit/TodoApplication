@@ -26,6 +26,65 @@
              }
 
        }
+
+       function getAuthValues(){
+        let authDetails = {};
+          const logInForm = document.getElementById("LogInForm");
+          const signUpForm = document.getElementById("SignUpForm");
+
+          if(logInForm.classList.contains('active')){
+              const identifier = document.getElementById("logIn_Identifier").value;
+              const password = document.getElementById("logIn_Password").value;
+
+              authDetails.identifier = identifier;
+              authDetails.password = password;
+
+              return{type : 'logIn', authDetails};
+          }
+          else if(signUpForm.classList.contains('active')){
+              const identifier = document.getElementById("signUp_Identifier").value;
+              const password = document.getElementById("signUp_Password").value;
+
+              authDetails.identifier = identifier;
+              authDetails.password = password;
+
+              return {type : 'signUp', authDetails};
+          }
+
+   }
+
+       function LogIn_click(){
+        const data = getAuthValues();
+
+
+        fetch("http://localhost:3000/logIn" , {
+            method : "POST",
+            headers :{
+            "content-type" : "application/json"
+        },
+        body : JSON.stringify({
+            identifier : data.authDetails.identifier,
+            password : data.authDetails.password
+        })
+        }).then(() => console.log(data.authDetails))
+        .catch(err => console.error("authentication error", err))
+       }
+
+       function Signup_click(){
+        let data = getAuthValues();
+
+        fetch("http://localhost:3000/SignUp", {
+            method : "POST",
+            headers :{
+            "content-type" : "application/json"
+        },
+            body : JSON.stringify({
+                identifier : data.authDetails.identifier,
+                password : data.authDetails.password
+            })
+        }).then(() => console.log(data.authDetails))
+        .catch(err => console.error("authentication error", err))
+       }
     </script>
 
 </head>
@@ -44,17 +103,17 @@
             <div class="login-box">
                     <h2>WELCOME</h2>
                     <form style="width: 300px;" class="auth-form" id="LogInForm">
-                        <input type="text" placeholder="UserName or Email" required/>
-                        <input type="password" placeholder="Password" required/>
+                        <input type="text" placeholder="UserName or Email" id="logIn_Identifier" required/>
+                        <input type="password" placeholder="Password" id="logIn_Password" required/>
                         <a href="#">Forget Password?</a>
-                        <button type="submit" onclick="LogIn_click">LogIn</button>
+                        <button type="submit" onclick="LogIn_click();return false;" >LogIn</button>
                     </form>
 
                     <form style="width: 300px;" id="SignUpForm" class="auth-form active">
-                        <input type="text" placeholder="UserName or Email" required/>
-                        <input type="password" placeholder="Password" required/>
+                        <input type="text" placeholder="UserName or Email" id="signUp_Identifier" required/>
+                        <input type="password" placeholder="Password" id="signUp_Password" required/>
                         <a href="#">Forget Password?</a>
-                        <button type="submit" onclick="Signup_click">SignUp</button>
+                        <button type="submit" onclick="Signup_click(); return false;" >SignUp</button>
                     </form>
             </div>
         </div>

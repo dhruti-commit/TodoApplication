@@ -7,6 +7,28 @@ const bodyparser = require('body-parser');
 const app = express();
 const path = require('path');
 const nodemon = require('nodemon');
+const mongoose = require('mongoose');
+
+const userSchema = new mongoose.Schema({
+    userIdentifier : {
+        require : true,
+        type : String,
+        unique : true
+    } ,
+    password : {
+        type : String,
+        require : true,
+    }
+});
+
+
+const User =  mongoose.model('User', userSchema);
+
+mongoose.connect("mongodb+srv://radadiyaDhruti:as145%40Dh@dhrutin.vced37w.mongodb.net/TodoApp", {
+  dbName : "TodoApp",
+  }).then(() => console.log("Database connected"))
+.catch(err => console.error("connection error", err));
+
 app.use(bodyparser.json());
 app.use(bodyparser.urlencoded({ extended: true })); 
 app.use(cors());
@@ -131,14 +153,14 @@ app.put("/updateTodo", async(req, res) =>
                 if(getTodo != -1)
                 {
                     todoList.splice(getTodo, 1);
-                    const { title, description, Progress , createdDate} = req.body; // Extract values
+                    const { title, description, Progress , createdDate, id} = req.body; // Extract values
 
                     if (!title || !description || !Progress) {
                         return res.status(400).json({ error: "Missing required fields" });
                     }
                 
                     // Simulate saving data (Replace this with your DB logic)
-                    const updatedTodo = { title, description, Progress, createdDate};
+                    const updatedTodo = { title, description, Progress, createdDate, id};
                     todoList.push(updatedTodo);
                    writeDataToFile("todos.json", todoList);
                    res.send({message :"Update todo successfully"});
@@ -197,6 +219,48 @@ app.delete("/deleteTodo", async(req, res) =>
 
         }
     })
+
+app.post("/signUp", async(req, res) =>{
+    const userName = req.body.identifier;
+    const password = req.body.password;
+    
+    const IsUser = await User.findOne({
+        userIdentifier : userName,
+    });
+
+    if(IsUser !== null){
+        return res.send({message : "User already present"});
+    }
+    else{
+        let userData = new User({userIdentifier : userName, password : password});
+        await userData.save();
+        return res.send({message : "User created successfully"});
+    }
+})
+
+app.post("/logIn", async(req, res)=>
+    {
+    const userName = req.body.identifier;
+    const password = req.body.password;
+    
+    const IsUser = await User.findOne({userIdentifier : userName});
+    // }).then(() =>{
+    //     res.send({message : "Logged in successfully"});
+    //     User.send(res.body);
+    //               })
+    // .catch(err => console.error("Error", err));
+
+    if(IsUser === null){
+        let userData = new User({userIdentifier : userName, password : password});
+        await userData.save();
+        res.send({message : "Logged in successfully"});
+    }
+    else{
+        //User.send(req.body);
+        res.send({message : "User not found"});
+    }
+})
+
 
 app.listen(port,() =>
     {

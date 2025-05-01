@@ -1,4 +1,5 @@
 const express = require('express');
+const { exec } = require('child_process');
 const cors = require('cors')
 require('dotenv').config();
 const port =  parseInt(process.env.PORT);
@@ -8,7 +9,44 @@ const app = express();
 const path = require('path');
 const nodemon = require('nodemon');
 const mongoose = require('mongoose');
+const jwt_token = require('jsonwebtoken');
+//const cookies = require('cookies');
+const cookieParser = require('cookie-parser');
+const { ppid } = require('process');
 
+const Secret_Key = "AuthSecret";
+
+app.use(express.static(path.join(__dirname ,'..', 'Client', 'public'))) ;
+app.use(cors());
+// app.use(cookieParser());
+// app.use(cors({
+//     origin: "http://localhost:3000",  // Match the frontend port
+//     credentials: true
+//   }));
+
+
+//app.use(cookies());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+const authenticateJWT = (req, res, next) =>{
+    const token = res.cookies.token;
+
+    if(token){
+     jwt_token.verify(token, Secret_Key, (err, user) => 
+    {
+        if(err){
+            return res.sendStatus(403);
+        }
+
+       user = req.user;
+       next();
+    });
+    }
+    else{
+        res.sendStatus(401);
+    }
+}
 const userSchema = new mongoose.Schema({
     userIdentifier : {
         require : true,
@@ -29,9 +67,44 @@ mongoose.connect("mongodb+srv://radadiyaDhruti:as145%40Dh@dhrutin.vced37w.mongod
   }).then(() => console.log("Database connected"))
 .catch(err => console.error("connection error", err));
 
-app.use(bodyparser.json());
-app.use(bodyparser.urlencoded({ extended: true })); 
-app.use(cors());
+
+app.post("/signUp", async(req, res) =>{
+    const userName = req.body.identifier;
+    const password = req.body.password;
+
+    const IsUser = await User.findOne({
+        userIdentifier : userName,
+    });
+
+    if(IsUser !== null){
+        return res.send({message : "User already present"});
+    }
+    else{
+        let userData = new User({userIdentifier : userName, password : password});
+        await userData.save();
+       return res.send({message : "User created successfully"});
+    }
+})
+
+app.post("/logIn", async(req, res)=>
+    {
+    const userName = req.body.identifier;
+    const password = req.body.password;
+    
+    const IsUser = await User.findOne({userIdentifier : userName});
+
+    if(!IsUser){
+        res.send({message : "User not found"})
+        
+        ;
+    }
+
+    if (IsUser.password === password) {
+        return res.send({ message: "Logged in successfully" });
+      } else {
+        return res.send({ message: "Incorrect password" });
+      }
+})
 
 // function to get todo with lable if present
 function FindTodo(lable,  todos)
@@ -220,49 +293,10 @@ app.delete("/deleteTodo", async(req, res) =>
         }
     })
 
-app.post("/signUp", async(req, res) =>{
-    const userName = req.body.identifier;
-    const password = req.body.password;
-    
-    const IsUser = await User.findOne({
-        userIdentifier : userName,
-    });
-
-    if(IsUser !== null){
-        return res.send({message : "User already present"});
-    }
-    else{
-        let userData = new User({userIdentifier : userName, password : password});
-        await userData.save();
-        return res.send({message : "User created successfully"});
-    }
-})
-
-app.post("/logIn", async(req, res)=>
-    {
-    const userName = req.body.identifier;
-    const password = req.body.password;
-    
-    const IsUser = await User.findOne({userIdentifier : userName});
-    // }).then(() =>{
-    //     res.send({message : "Logged in successfully"});
-    //     User.send(res.body);
-    //               })
-    // .catch(err => console.error("Error", err));
-
-    if(IsUser === null){
-        let userData = new User({userIdentifier : userName, password : password});
-        await userData.save();
-        res.send({message : "Logged in successfully"});
-    }
-    else{
-        //User.send(req.body);
-        res.send({message : "User not found"});
-    }
-})
 
 
 app.listen(port,() =>
     {
         console.log(`listening at port : ${port}`);
+        exec(`start http://localhost:${port}/AuthPage.html`);
     })

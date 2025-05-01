@@ -115,7 +115,7 @@ function addTodo() {
 
     const todoData = getValues();
 
-    fetch("http://localhost:3000/addTodo", {
+    fetch("/addTodo", {
         method : "POST",
         headers :{
             "content-type" : "application/json"
@@ -134,7 +134,7 @@ function addTodo() {
 function deleteTodo(){
 
     const deleteTodo = getValues();
-    fetch("http://localhost:3000/deleteTodo", {
+    fetch("/deleteTodo", {
         method : "DELETE", 
         headers :{
             "content-type" : "application/json",
@@ -151,7 +151,7 @@ function EditTodo(){
 
     const updatedTodoData = getValues();
 
-    fetch("http://localhost:3000/updateTodo", {
+    fetch("/updateTodo", {
         method : "PUT",
         headers :{
             "content-type" : "application/json"

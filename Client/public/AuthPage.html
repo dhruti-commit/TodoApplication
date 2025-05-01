@@ -54,7 +54,7 @@
    }
 
        function LogIn_click(){
-        const data = getAuthValues();
+        const authdata = getAuthValues();
 
 
         fetch("http://localhost:3000/logIn" , {
@@ -63,15 +63,23 @@
             "content-type" : "application/json"
         },
         body : JSON.stringify({
-            identifier : data.authDetails.identifier,
-            password : data.authDetails.password
-        })
-        }).then(() => console.log(data.authDetails))
+            identifier : authdata.authDetails.identifier,
+            password : authdata.authDetails.password
+        }),
+        // credentials : "include"
+        }).then(res => res.json())
+        .then((data) => {
+            console.log(data);
+            if(data.message === "Logged in successfully"){
+                window.location.href = "/todo.html";
+            }
+            else{ alert(data.message);}
+           })
         .catch(err => console.error("authentication error", err))
        }
 
        function Signup_click(){
-        let data = getAuthValues();
+        let authdata = getAuthValues();
 
         fetch("http://localhost:3000/SignUp", {
             method : "POST",
@@ -79,10 +87,13 @@
             "content-type" : "application/json"
         },
             body : JSON.stringify({
-                identifier : data.authDetails.identifier,
-                password : data.authDetails.password
+                identifier : authdata.authDetails.identifier,
+                password : authdata.authDetails.password
             })
-        }).then(() => console.log(data.authDetails))
+        }).then(res => res.json())
+        .then((data) => {
+            alert(data.message);
+        })
         .catch(err => console.error("authentication error", err))
        }
     </script>

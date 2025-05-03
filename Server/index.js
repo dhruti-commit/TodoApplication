@@ -117,6 +117,7 @@ app.post("/signUp", async(req, res) =>{
         return res.send({message : "User already present"});
     }
     else{
+        if(password === '') return res.send({message : "Password reqired"});
         let userData = new User({userIdentifier : userName, password : password});
         await userData.save();
         setAuthCookie(res, userData._id);

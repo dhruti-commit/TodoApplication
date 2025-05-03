@@ -1,5 +1,6 @@
 const express = require('express');
 const { exec } = require('child_process');
+const {setAuthCookie} = require('./utils/auth')
 const cors = require('cors')
 require('dotenv').config();
 const port =  parseInt(process.env.PORT);
@@ -9,20 +10,20 @@ const app = express();
 const path = require('path');
 const nodemon = require('nodemon');
 const mongoose = require('mongoose');
-const jwt_token = require('jsonwebtoken');
 //const cookies = require('cookies');
 const cookieParser = require('cookie-parser');
-const { ppid } = require('process');
+const { ppid, title } = require('process');
+const { type } = require('os');
 
 const Secret_Key = "AuthSecret";
 
 app.use(express.static(path.join(__dirname ,'..', 'Client', 'public'))) ;
-app.use(cors());
-// app.use(cookieParser());
-// app.use(cors({
-//     origin: "http://localhost:3000",  // Match the frontend port
-//     credentials: true
-//   }));
+//app.use(cors());
+app.use(cookieParser());
+app.use(cors({
+    origin: "http://localhost:3000",  // Match the frontend port
+    credentials: true
+  }));
 
 
 //app.use(cookies());
@@ -30,7 +31,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 const authenticateJWT = (req, res, next) =>{
-    const token = res.cookies.token;
+    const token = req.cookies.token;
 
     if(token){
      jwt_token.verify(token, Secret_Key, (err, user) => 
@@ -38,15 +39,15 @@ const authenticateJWT = (req, res, next) =>{
         if(err){
             return res.sendStatus(403);
         }
-
-       user = req.user;
+        req.userId = user.userId;
        next();
     });
     }
     else{
-        res.sendStatus(401);
+        res.sendStatus(401).json({message : "Unauthorised"});
     }
 }
+
 const userSchema = new mongoose.Schema({
     userIdentifier : {
         require : true,
@@ -61,6 +62,42 @@ const userSchema = new mongoose.Schema({
 
 
 const User =  mongoose.model('User', userSchema);
+
+const TodoSchema = new mongoose.Schema({
+    title :{
+        type : String,
+        require : true
+    },
+    description : {
+        type : String
+    },
+    createdDate : {
+        type : Date,
+        default : Date.now()
+    },
+    Progress : {
+        type : String, enum : ['pending', 'in-progress', 'completed'],
+        default : 'pending'
+    }, 
+    id : {
+        type : String,
+        unique :true,
+        require : true
+    }
+})
+const TodoListSchema = new mongoose.Schema({
+    userId : {
+        require : true,
+        unique : true,
+        type : mongoose.Schema.Types.ObjectId,
+        ref : 'User'
+    },
+    todoList : {
+        type : [TodoSchema]
+    }
+})
+
+const todoListModel = new mongoose.model('TodoList', TodoListSchema);
 
 mongoose.connect("mongodb+srv://radadiyaDhruti:as145%40Dh@dhrutin.vced37w.mongodb.net/TodoApp", {
   dbName : "TodoApp",
@@ -82,7 +119,8 @@ app.post("/signUp", async(req, res) =>{
     else{
         let userData = new User({userIdentifier : userName, password : password});
         await userData.save();
-       return res.send({message : "User created successfully"});
+        setAuthCookie(res, userData._id);
+       return res.send({message : "User created successfully", todos : []});
     }
 })
 
@@ -94,32 +132,33 @@ app.post("/logIn", async(req, res)=>
     const IsUser = await User.findOne({userIdentifier : userName});
 
     if(!IsUser){
-        res.send({message : "User not found"})
-        
-        ;
+        res.send({message : "User not found"});
     }
 
     if (IsUser.password === password) {
-        return res.send({ message: "Logged in successfully" });
+        setAuthCookie(res, IsUser._id);
+        const todos = await todoListModel.findOne({userId : IsUser._id});
+        return res.send({ message: "Logged in successfully" ,
+            todos : todos?. todoList || []});
       } else {
         return res.send({ message: "Incorrect password" });
       }
 })
 
 // function to get todo with lable if present
-function FindTodo(lable,  todos)
-{ 
-    console.log(Array.isArray(todos));
-    console.log(todos.length);
-    if(Array.isArray(todos)){
-    for(var i=0; i < todos.length; i++){
-        if(todos[i].title == lable)
-        {
-            return todos[i];
-        }
-    }
-    }
-}
+// function FindTodo(lable,  todos)
+// { 
+//     console.log(Array.isArray(todos));
+//     console.log(todos.length);
+//     if(Array.isArray(todos)){
+//     for(var i=0; i < todos.length; i++){
+//         if(todos[i].title == lable)
+//         {
+//             return todos[i];
+//         }
+//     }
+//     }
+// }
 
 
 //function to read data from files
@@ -149,11 +188,10 @@ async function writeDataToFile(filePath, content)
 //API to get all todos
 app.get('/todos', async(req,res) => 
     {
-         var todoList = await readFileData("todos.json");
-         if(todoList != ""){
-         res.send(JSON.parse(todoList));
-         }
-         else res.send({message : "Empty File"});
+         //var todoList = await readFileData("todos.json");
+
+         var todos = await todoListModel.findOne({userId : req.userId});
+         res.send(todos ?. todoList || []);
     })
 
 

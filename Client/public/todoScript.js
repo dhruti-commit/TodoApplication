@@ -115,7 +115,7 @@ function addTodo() {
 
     const todoData = getValues();
 
-    fetch("/addTodo", {
+    fetch("/todo/addTodo", {
         method : "POST",
         headers :{
             "content-type" : "application/json"
@@ -134,7 +134,7 @@ function addTodo() {
 function deleteTodo(){
 
     const deleteTodo = getValues();
-    fetch("/deleteTodo", {
+    fetch("/todo/deleteTodo", {
         method : "DELETE", 
         headers :{
             "content-type" : "application/json",
@@ -151,7 +151,7 @@ function EditTodo(){
 
     const updatedTodoData = getValues();
 
-    fetch("/updateTodo", {
+    fetch("/todo/updateTodo", {
         method : "PUT",
         headers :{
             "content-type" : "application/json"
@@ -212,9 +212,23 @@ function getTodoList(){
         response.json().then(parsedResponse)
    }
 
-    fetch("http://localhost:3000/todos", {
+    fetch("http://localhost:3000/todo/todos", {
         method : "GET"
     }).then(editDataCalback)
 
     
+}
+
+function logout(){
+    fetch("http://localhost:3000/auth/logout",{
+        method : "POST",
+        credentials : "include"
+    }).then( response => response.json())
+    .then((data) =>{
+        console.log(data);
+        window.location.href = "AuthPage.html";
+    })
+    .catch(err =>{
+          console.error("log out failed", err);
+    })
 }

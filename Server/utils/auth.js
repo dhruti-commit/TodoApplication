@@ -1,10 +1,11 @@
 
 const jwt_token = require('jsonwebtoken');
 
-const secretKey = "AuthSecret"
+require('dotenv').config();
+
 
 function setAuthCookie(res, userId){
-    const token = jwt_token.sign({userId}, secretKey, {
+    const token = jwt_token.sign({userId}, process.env.Secret_Key, {
         expiresIn : '1d'
     });
 
@@ -16,4 +17,15 @@ function setAuthCookie(res, userId){
     })
 }
 
-module.exports = {setAuthCookie};
+function clearAuthCookies(res){
+    res.clearCookies('token', 
+        {
+            httpOnly : true,
+        secure : false,
+        sameSite : 'Lax',
+        maxAge : 24*60*60*1000
+        }
+    );
+}
+
+module.exports = {setAuthCookie, clearAuthCookies};

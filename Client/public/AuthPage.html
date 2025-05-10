@@ -57,7 +57,7 @@
         const authdata = getAuthValues();
 
 
-        fetch("http://localhost:3000/logIn" , {
+        fetch("http://localhost:3000/auth/logIn" , {
             method : "POST",
             headers :{
             "content-type" : "application/json"
@@ -82,7 +82,7 @@
        function Signup_click(){
         let authdata = getAuthValues();
 
-        fetch("http://localhost:3000/SignUp", {
+        fetch("http://localhost:3000/auth/SignUp", {
             method : "POST",
             headers :{
             "content-type" : "application/json"

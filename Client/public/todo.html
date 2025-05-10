@@ -14,7 +14,7 @@
 <body>
     <div class="stackpanel">
         <div class="item">
-            <div class="userdiv">
+            <!-- <div class="userdiv">
                 <fieldset>
                     <legend>User Details</legend>
                     <div class="form-group">
@@ -34,10 +34,10 @@
                         <textarea></textarea>
                     </div>
                 </fieldset>
-            </div>
+            </div> -->
 
             <div class="tododiv">
-                <fieldset>
+                <fieldset style="height: 300px;">
                     <legend>Todo Details</legend>
                     <button class="image-button" onclick="EditTodo()"><img src="../image/edit.png" alt="Edit"></button>
                     <div class="form-group">
@@ -69,13 +69,13 @@
                         </div>
                     </div>
                     <div class="stackpanel">
-                         <button onclick="addTodo()">Create</button>
-                         <button onclick="deleteTodo()">Delete</button>
+                         <button onclick="addTodo()" style="height: 30px;width: 100px;">Create</button>
+                         <button onclick="deleteTodo()" style="height: 30px;width: 100px;">Delete</button>
                     </div>
                 </fieldset>
             </div>
 
-            <button style="margin-top: 8px;">Log Out</button>
+            <button style="margin-top: 10px;height: 30px;width: 100px;" onclick="logout()">Log Out</button>
         </div>
 
         <div class="item" id="pending">

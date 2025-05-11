@@ -47,7 +47,7 @@ router.post("/logIn", async(req, res)=>
       }
 })
 
-router.post('logout', (req, res) => {
+router.post('/logout', (req, res) => {
     clearAuthCookies(res);
     return res.send({message : "logged out successfully"});
 })

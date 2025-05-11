@@ -18,9 +18,9 @@ function setAuthCookie(res, userId){
 }
 
 function clearAuthCookies(res){
-    res.clearCookies('token', 
+    res.clearCookie('token', 
         {
-            httpOnly : true,
+        httpOnly : true,
         secure : false,
         sameSite : 'Lax',
         maxAge : 24*60*60*1000
